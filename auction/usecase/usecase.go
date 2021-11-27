@@ -1,6 +1,9 @@
 package auctionUsecase
 
-import "auctionservice/auction"
+import (
+	"auctionservice/auction"
+	"auctionservice/models"
+)
 
 type AuctionUseCase struct {
 	repository auction.AuctionRepository
@@ -27,4 +30,20 @@ func (a *AuctionUseCase) EnrollToAuction() {
 
 }
 
-func (a *AuctionUseCase) GetAuction() {}
+func (a *AuctionUseCase) GetAuction(user_id, auction_id string) (*models.Auction, []string, error) {
+	auction_data, err := a.repository.GetAuctionData(auction_id)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if auction_data.Owner == user_id {
+		var participants []string
+		participants, err = a.repository.GetAuctionParticipants(auction_id)
+		if err != nil {
+			return nil, nil, err
+		}
+		return &auction_data, participants, nil
+	}
+
+	return &auction_data, nil, nil
+}

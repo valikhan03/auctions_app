@@ -1,6 +1,7 @@
 package auctiondatabase
 
 import (
+	"auctionservice/models"
 	"context"
 	"fmt"
 	"log"
@@ -8,19 +9,24 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type AuctionRepository struct {
 	postgresdb *sqlx.DB
 	mongodb    *mongo.Database
+	redisdb    *redis.Client
 }
 
-func NewAuctionRepository(postgres *sqlx.DB, mongodb *mongo.Database) *AuctionRepository {
+func NewAuctionRepository(postgres *sqlx.DB, mongo *mongo.Database, redis *redis.Client) *AuctionRepository {
 	return &AuctionRepository{
 		//postgres-db
 		postgresdb: postgres,
 		//mongo-db
-		mongodb: mongodb,
+		mongodb: mongo,
+		//redis
+		redisdb: redis,
 	}
 }
 
@@ -54,6 +60,28 @@ func (a *AuctionRepository) AddParticipant(auction_id string, user_id string) er
 	return err
 }
 
-func (a *AuctionRepository) GetAuction() {
+func (a *AuctionRepository) GetAuctionData(auction_id string) (models.Auction, error) {
+	auction_data := models.Auction{}
+	err := a.postgresdb.Get(&auction_data, "select * from auction where auction_id=$1", auction_id)
+	if err != nil {
+		log.Println(err)
+	}
 
+	return auction_data, err
 }
+
+func (a *AuctionRepository) GetAuctionParticipants(auction_id string) ([]string, error) {
+	collection := a.mongodb.Collection("")
+	var participants []string
+
+	filter := bson.D{{"auction_id", auction_id}}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&participants)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return participants, err
+}
+
+

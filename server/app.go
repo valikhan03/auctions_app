@@ -17,11 +17,11 @@ import (
 	deliveryhttp "auctionservice/auth/delivery/http"
 	authUsecase "auctionservice/auth/usecase"
 
-
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -35,9 +35,10 @@ func newApp() *App {
 
 	postgresDB := initPostgreDB()
 	mongoDB := initMongoDB()
+	redisDB := initRedisDB()
 
 	authRepos := authdatabase.NewUserRepository(postgresDB)
-	auctionRepos := auctiondatabase.NewAuctionRepository(postgresDB, mongoDB)
+	auctionRepos := auctiondatabase.NewAuctionRepository(postgresDB, mongoDB, redisDB)
 
 	return &App{
 		authUC:    authUsecase.NewAuthUseCase(authRepos, "Pstre12e_9fQz", []byte("pwr12qxk90"), 10),
@@ -55,11 +56,21 @@ func initPostgreDB() *sqlx.DB {
 }
 
 func initMongoDB() *mongo.Database {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	mongo, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	db := client.Database("")
+	db := mongo.Database("")
+
+	return db
+}
+
+func initRedisDB() *redis.Client{
+	db := redis.NewClient(&redis.Options{
+		Addr: "",
+		Password: "",
+		DB: 0,
+	})
 
 	return db
 }
