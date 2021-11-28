@@ -1,4 +1,4 @@
-package deliveryhttp
+package authhttp
 
 import (
 	"auctionservice/auth"

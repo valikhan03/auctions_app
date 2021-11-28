@@ -13,8 +13,9 @@ import (
 	"auctionservice/auth"
 	"auctionservice/auth/repository/authdatabase"
 
+	auctionhttp "auctionservice/auction/delivery/http"
 	auctionUsecase "auctionservice/auction/usecase"
-	deliveryhttp "auctionservice/auth/delivery/http"
+	authhttp "auctionservice/auth/delivery/http"
 	authUsecase "auctionservice/auth/usecase"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -65,11 +66,11 @@ func initMongoDB() *mongo.Database {
 	return db
 }
 
-func initRedisDB() *redis.Client{
+func initRedisDB() *redis.Client {
 	db := redis.NewClient(&redis.Options{
-		Addr: "",
+		Addr:     "",
 		Password: "",
-		DB: 0,
+		DB:       0,
 	})
 
 	return db
@@ -83,7 +84,12 @@ func (a *App) Run() error {
 	)
 
 	//needed to set up http handlers as endpoints
-	deliveryhttp.RegisterAuthHTTPEndpoints(router, a.authUC)
+	authhttp.RegisterAuthHTTPEndpoints(router, a.authUC)
+
+	authMiddleware := authhttp.NewAuthMiddleware(a.authUC)
+	api := router.Group("/api", authMiddleware.Handle)
+
+	auctionhttp.RegisterAuctionHttpEndpoints(api, a.auctionUC)
 
 	a.httpServer = &http.Server{
 		Addr:           ":8090",
