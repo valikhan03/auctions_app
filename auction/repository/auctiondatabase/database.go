@@ -8,6 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/go-redis/redis/v8"
@@ -44,11 +45,11 @@ func (a *AuctionRepository) NewAuction(user_id, auction_title string) (string, e
 func (a *AuctionRepository) AddParticipant(auction_id string, user_id string) error {
 	collection := a.mongodb.Collection("")
 
-	filter := bson.D{{"auction_id", auction_id}}
+	filter := bson.D{primitive.E{Key: "auction_id", Value: auction_id}}
 
 	update := bson.D{
 		{"$push", bson.D{
-			{"participants", user_id},
+			primitive.E{Key: "participants", Value: user_id},
 		}},
 	}
 
@@ -83,5 +84,3 @@ func (a *AuctionRepository) GetAuctionParticipants(auction_id string) ([]string,
 
 	return participants, err
 }
-
-
