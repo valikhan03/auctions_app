@@ -12,4 +12,3 @@ create table if not exists auction(
     owner UUID, 
 );
 
-//participants supposed to be stored in mongo-db with id of auction and array with participants

@@ -12,6 +12,7 @@ func RegisterAuctionHttpEndpoints(router *gin.RouterGroup, uc auction.UseCase) {
 	auctionEndpoints := router.Group("/auctions")
 	{
 		auctionEndpoints.POST("/new_auction", h.NewAuction)
+		auctionEndpoints.GET("/:id", h.GetAuctionData)
 	}
 
 }
