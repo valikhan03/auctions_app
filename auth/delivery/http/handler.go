@@ -32,7 +32,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	if err := h.UseCase.SignUp(input.Email, input.Password, input.Firstname, input.Lastname); err != nil {
+	if err := h.UseCase.SignUp(input.Email, input.Firstname, input.Lastname, input.Password); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -53,11 +53,13 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	token, err := h.UseCase.SignIn(input.Email, input.Password)
+	token, user_id, err := h.UseCase.SignIn(input.Email, input.Password)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "invilid email or password"})
 		return
 	}
 
-	c.SetCookie("access-token", token, 1000000, "/", "localhost", false, true)
+	c.Set("user_id", user_id)
+
+	c.SetCookie("access-token", token, 1000000000, "/", "localhost", false, true)
 }

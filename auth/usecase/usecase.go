@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 )
 
 type AuthUseCase struct {
@@ -29,20 +30,31 @@ func NewAuthUseCase(
 		userRepos:  user_repos,
 		hashSalt:   hash_salt,
 		signingKey: signing_key,
-		expireTime: tokenTLSSeconds * time.Second,
+		expireTime: tokenTLSSeconds * 24 * time.Hour,
 	}
 }
 
-func (a *AuthUseCase) SignUp(email, firstname, lastname, password string) error {
+func (a *AuthUseCase) HashPassword(p string) string {
 	pwd := sha256.New()
-	pwd.Write([]byte(password))
+	pwd.Write([]byte(p))
 	pwd.Write([]byte(a.hashSalt))
+	password := fmt.Sprintf("%x", pwd.Sum(nil))
+	return password
+}
+
+func (a *AuthUseCase) SignUp(email, firstname, lastname, password string) error {
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		log.Println(err)
+	}
 
 	user := &models.User{
+		Id:        id.String(),
 		Email:     email,
 		Firstname: firstname,
 		Lastname:  lastname,
-		Password:  fmt.Sprintf("%x", pwd.Sum(nil)),
+		Password:  a.HashPassword(password),
 	}
 
 	return a.userRepos.CreateUser(user)
@@ -89,23 +101,24 @@ func (a *AuthUseCase) ParseToken(accessToken string) (string, error) {
 
 	if claims, ok := token.Claims.(*tokenClaims); ok && token.Valid {
 		return claims.User_id, nil
-	}else{
+	} else {
 		return "", errors.New("Error invalid access token")
 
 	}
 }
 
-func (a *AuthUseCase) SignIn(email, password string) (string, error) {
-	user, err := a.userRepos.GetUser(email, password)
+func (a *AuthUseCase) SignIn(email, password string) (string, string, error) {
+	password = a.HashPassword(password)
+	id, err := a.userRepos.GetUserID(email, password)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("user not found")
+		return "", "", errors.New("user not found")
 	}
 
-	accessToken, err := a.GenerateAuthToken(user.Id)
+	accessToken, err := a.GenerateAuthToken(id)
 	if err != nil {
 		log.Println(err)
-		return "", errors.New("Token generation error")
+		return "", "", errors.New("Token generation error")
 	}
-	return accessToken, nil
+	return accessToken, id, nil
 }

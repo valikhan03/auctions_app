@@ -23,6 +23,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	_ "github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,7 +33,7 @@ type App struct {
 	auctionUC  auction.UseCase
 }
 
-func newApp() *App {
+func NewApp() *App {
 
 	postgresDB := initPostgreDB()
 	mongoDB := initMongoDB()
@@ -48,7 +49,7 @@ func newApp() *App {
 }
 
 func initPostgreDB() *sqlx.DB {
-	db, err := sqlx.Connect("", "")
+	db, err := sqlx.Connect("pgx", ReadPostgresConfigs())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +58,7 @@ func initPostgreDB() *sqlx.DB {
 }
 
 func initMongoDB() *mongo.Database {
-	mongo, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	mongo, err := mongo.NewClient(options.Client().ApplyURI(ReadMongoConfigs()))
 	if err != nil {
 		log.Fatal(err)
 	}

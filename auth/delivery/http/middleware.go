@@ -2,6 +2,7 @@ package authhttp
 
 import (
 	"auctionservice/auth"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,17 +19,17 @@ func NewAuthMiddleware(usecase auth.UseCase) *AuthMiddleware {
 }
 
 func (m *AuthMiddleware) Handle(c *gin.Context) {
-	token, err := c.Cookie("")
+	token, err := c.Cookie("access-token")
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithError(http.StatusBadRequest, http.ErrNoCookie)
 		return
 	}
 
-	user_id, err := m.UseCase.ParseToken(token)
+	_, err = m.UseCase.ParseToken(token)
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-
-	c.Set("user_id", user_id)
 }

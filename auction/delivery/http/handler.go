@@ -3,6 +3,7 @@ package auctionhttp
 import (
 	"auctionservice/auction"
 	"auctionservice/models"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,18 +20,26 @@ func NewHandler(usecase auction.UseCase) *Handler {
 	}
 }
 
+type Title struct{
+	Title string `json:"title"`
+}
+
 func (h *Handler) NewAuction(c *gin.Context) {
-	var title string
+	var title Title
 	c.BindJSON(&title)
 
-	user_id, ok := c.Get("user_id")
-	if !ok {
+	fmt.Println("handler-", title.Title)
+
+	user_id, err := c.Cookie("userID")
+	fmt.Println(user_id)
+	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	auction_id, err := h.UseCase.CreateAuction(user_id.(string), title)
+	auction_id, err := h.UseCase.CreateAuction(user_id, title.Title)
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -44,17 +53,19 @@ type AuctionData struct {
 }
 
 func (h *Handler) GetAuctionData(c *gin.Context) {
-	user_id, exists := c.Get("user_id")
-	if exists == false{
+	user_id, err := c.Cookie("userID")
+	if err != nil{
 		c.AbortWithStatus(http.StatusBadRequest)
+		return
 	}
 	auction_id, ok := c.Params.Get("id")
+	fmt.Println(auction_id)
 	if ok == false {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	auction, participants, err := h.UseCase.GetAuction(user_id.(string), auction_id)
+	auction, participants, err := h.UseCase.GetAuction(user_id, auction_id)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)

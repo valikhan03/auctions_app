@@ -40,7 +40,7 @@ func (a *AuctionUseCase) GetAuction(user_id, auction_id string) (*models.Auction
 		var participants []string
 		participants, err = a.repository.GetAuctionParticipants(auction_id)
 		if err != nil {
-			return nil, nil, err
+			return &auction_data, nil, nil
 		}
 		return &auction_data, participants, nil
 	}
