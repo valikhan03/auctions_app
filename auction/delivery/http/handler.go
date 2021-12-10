@@ -20,15 +20,16 @@ func NewHandler(usecase auction.UseCase) *Handler {
 	}
 }
 
-type Title struct{
-	Title string `json:"title"`
+type AuctionData struct {
+	Title  string `json:"title"`
+	Type   string `json:"type"`   //private public
+	Status string `json:"status"` //started/ended/not started
+	Date   string `json:"Date"`
 }
 
 func (h *Handler) NewAuction(c *gin.Context) {
-	var title Title
-	c.BindJSON(&title)
-
-	fmt.Println("handler-", title.Title)
+	var newAuction AuctionData
+	c.BindJSON(&newAuction)
 
 	user_id, err := c.Cookie("userID")
 	fmt.Println(user_id)
@@ -37,7 +38,7 @@ func (h *Handler) NewAuction(c *gin.Context) {
 		return
 	}
 
-	auction_id, err := h.UseCase.CreateAuction(user_id, title.Title)
+	auction_id, err := h.UseCase.CreateAuction(user_id, newAuction.Title, newAuction.Type, newAuction.Status, newAuction.Date)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -47,14 +48,14 @@ func (h *Handler) NewAuction(c *gin.Context) {
 	c.JSON(http.StatusOK, auction_id)
 }
 
-type AuctionData struct {
+type AuctionFullData struct {
 	Auction      models.Auction `json:"auction"`
 	Participants []string       `json:"participants"`
 }
 
 func (h *Handler) GetAuctionData(c *gin.Context) {
 	user_id, err := c.Cookie("userID")
-	if err != nil{
+	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -71,10 +72,27 @@ func (h *Handler) GetAuctionData(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	var auctionData  = &AuctionData{
-		Auction: *auction,
+	var auctionFullData = &AuctionFullData{
+		Auction:      *auction,
 		Participants: participants,
-	}  
-	c.JSON(http.StatusOK ,auctionData)
+	}
+	c.JSON(http.StatusOK, auctionFullData)
 
+}
+
+func (h *Handler) GetAllPublicAuctions(c *gin.Context) {
+	auctions, err := h.UseCase.GetAllPublicAuctions()
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, auctions)
 }

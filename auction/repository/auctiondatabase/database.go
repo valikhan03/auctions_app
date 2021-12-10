@@ -85,3 +85,23 @@ func (a *AuctionRepository) GetAuctionParticipants(auction_id string) ([]string,
 
 	return participants, err
 }
+
+func (a *AuctionRepository) GetAllPublicAuctions() (*[]models.Auction, error) {
+	auctions := []models.Auction{}
+	auction := models.Auction{}
+	rows, err := a.postgresdb.Query("select * from auctions where type='public'")
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&auction)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		auctions = append(auctions, auction)
+	}
+
+	return &auctions, nil
+}
