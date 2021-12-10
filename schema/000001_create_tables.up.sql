@@ -10,6 +10,9 @@ create table if not exists users(
 create table if not exists auctions(
     id UUID PRIMARY KEY,
     title VARCHAR(400),
+    type VARCHAR(50),
+    status VARCHAR(50),
+    date VARCHAR(50),
     owner UUID, 
 );
 

@@ -18,7 +18,7 @@ func NewAuctionUseCase(repos auction.AuctionRepository) *AuctionUseCase {
 }
 
 func (a *AuctionUseCase) CreateAuction(user_id, auctionTitle, auctionType, status, date string) (string, error) {
-	auction_id, err := a.repository.NewAuction(user_id, auctionTitle)
+	auction_id, err := a.repository.NewAuction(user_id, auctionTitle, auctionType, status, date)
 	return auction_id, err
 }
 

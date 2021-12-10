@@ -32,9 +32,10 @@ func NewAuctionRepository(postgres *sqlx.DB, mongo *mongo.Database, redis *redis
 	}
 }
 
-func (a *AuctionRepository) NewAuction(user_id, auction_title string) (string, error) {
+func (a *AuctionRepository) NewAuction(user_id, auctionTitle, auctionType, auctionStatus, auctionDate string) (string, error) {
 	auction_id := uuid.New().String()
-	_, err := a.postgresdb.Exec("insert into auctions (id, title, owner) values ($1, $2, $3)", auction_id, auction_title, user_id)
+	_, err := a.postgresdb.Exec("insert into auctions (id, title, type, status, date, owner) values ($1, $2, $3, $4, $5, $6)", 
+	auction_id, auctionTitle, auctionType, auctionStatus, auctionDate, user_id)
 	if err != nil {
 		log.Println(err)
 		return "", err
