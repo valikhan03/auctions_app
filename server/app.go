@@ -10,13 +10,11 @@ import (
 
 	"auctionservice/auction"
 	"auctionservice/auction/repository/auctiondatabase"
-	"auctionservice/auth"
-	"auctionservice/auth/repository/authdatabase"
+
 
 	auctionhttp "auctionservice/auction/delivery/http"
 	auctionUsecase "auctionservice/auction/usecase"
-	authhttp "auctionservice/auth/delivery/http"
-	authUsecase "auctionservice/auth/usecase"
+
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,7 +27,6 @@ import (
 
 type App struct {
 	httpServer *http.Server
-	authUC     auth.UseCase
 	auctionUC  auction.UseCase
 }
 
@@ -39,11 +36,9 @@ func NewApp() *App {
 	mongoDB := initMongoDB()
 	redisDB := initRedisDB()
 
-	authRepos := authdatabase.NewUserRepository(postgresDB)
 	auctionRepos := auctiondatabase.NewAuctionRepository(postgresDB, mongoDB, redisDB)
 
 	return &App{
-		authUC:    authUsecase.NewAuthUseCase(authRepos, "Pstre12e_9fQz", []byte("pwr12qxk90"), 10),
 		auctionUC: auctionUsecase.NewAuctionUseCase(auctionRepos),
 	}
 }
@@ -85,12 +80,9 @@ func (a *App) Run() error {
 	)
 
 	//needed to set up http handlers as endpoints
-	authhttp.RegisterAuthHTTPEndpoints(router, a.authUC)
 
-	authMiddleware := authhttp.NewAuthMiddleware(a.authUC)
-	api := router.Group("/api", authMiddleware.Handle)
 
-	auctionhttp.RegisterAuctionHttpEndpoints(api, a.auctionUC)
+	auctionhttp.RegisterAuctionHttpEndpoints(router, a.auctionUC)
 
 	a.httpServer = &http.Server{
 		Addr:           ":8090",

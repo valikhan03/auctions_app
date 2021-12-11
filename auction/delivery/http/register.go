@@ -6,13 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterAuctionHttpEndpoints(router *gin.RouterGroup, uc auction.UseCase) {
+func RegisterAuctionHttpEndpoints(router *gin.Engine, uc auction.UseCase) {
 	h := NewHandler(uc)
 
-	auctionEndpoints := router.Group("/auctions")
-	{
-		auctionEndpoints.POST("/new_auction", h.NewAuction)
-		auctionEndpoints.GET("/:id", h.GetAuctionData)
-	}
+	
+		router.POST("/new_auction", h.NewAuction)
+		router.GET("/:id", h.GetAuctionData)
 
 }
