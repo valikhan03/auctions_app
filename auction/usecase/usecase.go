@@ -18,7 +18,7 @@ func NewAuctionUseCase(repos auction.AuctionRepository) *AuctionUseCase {
 }
 
 func (a *AuctionUseCase) CreateAuction(user_id, auctionTitle, auctionType, status, date string) (string, error) {
-	auction_id, err := a.repository.NewAuction(user_id, auctionTitle, auctionType, status, date)
+	auction_id, err := a.repository.NewAuction(auctionTitle, auctionType, status, date)
 	return auction_id, err
 }
 
@@ -30,22 +30,13 @@ func (a *AuctionUseCase) EnrollToAuction() {
 
 }
 
-func (a *AuctionUseCase) GetAuction(user_id, auction_id string) (*models.Auction, []string, error) {
+func (a *AuctionUseCase) GetAuction(auction_id string) (*models.Auction, error) {
 	auction_data, err := a.repository.GetAuctionData(auction_id)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	if auction_data.Owner == user_id {
-		var participants []string
-		participants, err = a.repository.GetAuctionParticipants(auction_id)
-		if err != nil {
-			return &auction_data, nil, nil
-		}
-		return &auction_data, participants, nil
-	}
-
-	return &auction_data, nil, nil
+	return &auction_data, nil
 }
 
 

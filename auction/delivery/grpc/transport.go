@@ -1,6 +1,7 @@
 package auctiongrpc
 
 import (
+	"log"
 	"context"
 	"auction_api/auction/delivery/grpc/pb"
 
@@ -16,6 +17,7 @@ type GRPCServer struct{
 func (s *GRPCServer) NewAuction(ctx context.Context, req *pb.NewAuctionRequest) (*pb.NewAuctionResponse, error){
 	_, resp, err := s.newAuction.ServeGRPC(ctx, req)
 	if err != nil{
+		log.Println(err)
 		return nil, err
 	}
 	return resp.(*pb.NewAuctionResponse), nil
@@ -57,7 +59,7 @@ func encodeNewAuctionResponse(_ context.Context, response interface{}) (interfac
 
 func decodeAuctionDataRequest(_ context.Context, request interface{}) (interface{}, error){
 	req := request.(*pb.AuctionDataRequest)
-	return AuctionDataRequest{ID: req.AuctionId}, nil
+	return AuctionDataRequest{AuctionID: req.AuctionId}, nil
 }
 
 func encodeAuctionDataResponse(_ context.Context, response interface{}) (interface{}, error){

@@ -26,7 +26,7 @@ type NewAuctionResponse struct {
 }
 
 type AuctionDataRequest struct {
-	ID string
+	AuctionID string
 }
 
 type AuctionDataResponse struct {
@@ -40,6 +40,7 @@ type AuctionDataResponse struct {
 
 func MakeEndpoints(uc auction.UseCase) Endpoints{
 	return Endpoints{
+		NewAuction: makeNewAuctionEnpoints(uc),
 	}
 }
 
@@ -54,5 +55,26 @@ func makeNewAuctionEnpoints(uc auction.UseCase) endpoint.Endpoint{
 		}
 
 		return NewAuctionResponse{ID: result}, nil
+	}
+}
+
+func makeAuctionDataEndpoints(uc auction.UseCase) endpoint.Endpoint{
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(AuctionDataRequest)
+
+		result, err := uc.GetAuction(req.AuctionID)
+		if err != nil{
+			log.Println(err)
+			return nil, err
+		}
+
+		return AuctionDataResponse{
+			ID: result.Id,
+			Title: result.Title,
+			Type: result.Type,
+			Status: result.Status,
+			Date: result.Date,
+		}, nil
+
 	}
 }

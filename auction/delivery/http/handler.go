@@ -54,11 +54,7 @@ type AuctionFullData struct {
 }
 
 func (h *Handler) GetAuctionData(c *gin.Context) {
-	user_id, err := c.Cookie("userID")
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
+
 	auction_id, ok := c.Params.Get("id")
 	fmt.Println(auction_id)
 	if ok == false {
@@ -66,7 +62,7 @@ func (h *Handler) GetAuctionData(c *gin.Context) {
 		return
 	}
 
-	auction, participants, err := h.UseCase.GetAuction(user_id, auction_id)
+	auction, err := h.UseCase.GetAuction(auction_id)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -74,7 +70,6 @@ func (h *Handler) GetAuctionData(c *gin.Context) {
 	}
 	var auctionFullData = &AuctionFullData{
 		Auction:      *auction,
-		Participants: participants,
 	}
 	c.JSON(http.StatusOK, auctionFullData)
 
