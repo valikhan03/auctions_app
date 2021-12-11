@@ -1,7 +1,7 @@
 package auctiondatabase
 
 import (
-	"auctionservice/models"
+	"auction_api/models"
 	"context"
 	"fmt"
 	"log"
@@ -12,23 +12,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/go-redis/redis/v8"
 )
 
 type AuctionRepository struct {
 	postgresdb *sqlx.DB
 	mongodb    *mongo.Database
-	redisdb    *redis.Client
 }
 
-func NewAuctionRepository(postgres *sqlx.DB, mongo *mongo.Database, redis *redis.Client) *AuctionRepository {
+func NewAuctionRepository(postgres *sqlx.DB, mongo *mongo.Database) *AuctionRepository {
 	return &AuctionRepository{
 		//postgres-db
 		postgresdb: postgres,
 		//mongo-db
 		mongodb: mongo,
 		//redis
-		redisdb: redis,
 	}
 }
 

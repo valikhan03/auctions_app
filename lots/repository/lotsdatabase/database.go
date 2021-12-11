@@ -1,7 +1,7 @@
 package lotsdatabase
 
 import (
-	"auctionservice/models"
+	"auction_api/models"
 	"context"
 	"log"
 

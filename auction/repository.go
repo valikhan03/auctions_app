@@ -1,6 +1,6 @@
 package auction
 
-import "auctionservice/models"
+import "auction_api/models"
 
 type AuctionRepository interface {
 	NewAuction(user_id, auctionTitle, auctionType, auctionStatus, auctionDate string) (string, error)

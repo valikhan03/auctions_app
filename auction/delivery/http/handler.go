@@ -1,8 +1,8 @@
 package auctionhttp
 
 import (
-	"auctionservice/auction"
-	"auctionservice/models"
+	"auction_api/auction"
+	"auction_api/models"
 	"fmt"
 	"log"
 	"net/http"

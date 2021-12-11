@@ -1,14 +1,9 @@
 package main
 
 import (
-	"auctionservice/server"
-	"log"
+	"auction_api/server_grpc"
 )
 
 func main() {
-	app := server.NewApp()
-	err := app.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
+	grpc_server.Run()
 }

@@ -1,7 +1,7 @@
 package auctionhttp
 
 import (
-	"auctionservice/auction"
+	"auction_api/auction"
 
 	"github.com/gin-gonic/gin"
 )

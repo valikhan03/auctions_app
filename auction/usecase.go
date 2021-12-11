@@ -1,6 +1,6 @@
 package auction
 
-import "auctionservice/models"
+import "auction_api/models"
 
 type UseCase interface {
 	CreateAuction(user_id, auctionTitle, auctionType, status, date string) (string, error)

@@ -1,0 +1,33 @@
+syntax="proto3";
+
+option go_package = ".";
+
+service AuctionService {
+    rpc NewAuction(NewAuctionRequest) returns (NewAuctionResponse) {}
+    rpc AuctionData(AuctionDataRequest) returns (AuctionDataResponse) {}
+}
+
+message NewAuctionRequest {
+    string user_id = 1;
+    string title = 2;
+    string type = 3;
+    string status = 4;
+    string date = 5;
+}
+
+
+message NewAuctionResponse {
+    string auction_id = 1;
+}
+
+message AuctionDataRequest{
+    string auction_id = 1;
+}
+
+message AuctionDataResponse{
+    string auction_id = 1;
+    string title = 2;
+    string type = 3;
+    string status = 4;
+    string date = 5;
+}

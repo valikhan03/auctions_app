@@ -8,19 +8,18 @@ import (
 	"os/signal"
 	"time"
 
-	"auctionservice/auction"
-	"auctionservice/auction/repository/auctiondatabase"
+	"auction_api/auction"
+	"auction_api/auction/repository/auctiondatabase"
 
 
-	auctionhttp "auctionservice/auction/delivery/http"
-	auctionUsecase "auctionservice/auction/usecase"
+	auctionhttp "auction_api/auction/delivery/http"
+	auctionUsecase "auction_api/auction/usecase"
 
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
 )
@@ -34,9 +33,8 @@ func NewApp() *App {
 
 	postgresDB := initPostgreDB()
 	mongoDB := initMongoDB()
-	redisDB := initRedisDB()
 
-	auctionRepos := auctiondatabase.NewAuctionRepository(postgresDB, mongoDB, redisDB)
+	auctionRepos := auctiondatabase.NewAuctionRepository(postgresDB, mongoDB)
 
 	return &App{
 		auctionUC: auctionUsecase.NewAuctionUseCase(auctionRepos),
@@ -62,15 +60,7 @@ func initMongoDB() *mongo.Database {
 	return db
 }
 
-func initRedisDB() *redis.Client {
-	db := redis.NewClient(&redis.Options{
-		Addr:     "",
-		Password: "",
-		DB:       0,
-	})
 
-	return db
-}
 
 func (a *App) Run() error {
 	router := gin.Default()

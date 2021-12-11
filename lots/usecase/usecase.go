@@ -1,8 +1,8 @@
 package lotsUsecase
 
 import (
-	"auctionservice/lots"
-	"auctionservice/models"
+	"auction_api/lots"
+	"auction_api/models"
 )
 
 type LotsUseCase struct {

@@ -1,8 +1,8 @@
 package lotshttp
 
 import (
-	"auctionservice/lots"
-	"auctionservice/models"
+	"auction_api/lots"
+	"auction_api/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
